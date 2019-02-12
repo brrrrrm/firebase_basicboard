@@ -1,0 +1,48 @@
+@import 'base.css';
+
+.wrap{width: 100%; max-width: 1200px; margin: auto;}
+.panel{
+    background-color: #333;
+    border-bottom: 3px solid #999;
+    padding: 0 1rem;
+}
+    .panel>li{
+        padding: 0.5rem;
+    }
+    .logo{
+        float: left;
+        color: #f1f1f1;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    .logins{
+        float: right;
+    }
+    #login_bt{
+    }
+    #logout_bt{
+        display: none;
+    }
+    #user_email{
+        color: azure;
+        margin-right: 1rem;
+    }
+
+.wrs{
+    border: 1px solid rgb(200,200,200);
+    background-color: turquoise;
+    border-radius: 10px;
+    margin: 2rem 0rem;
+    padding: 0.5rem;
+}
+.wrs>li:first-child{
+    float: left;
+    width: calc(100% - 70px);
+}
+.wrs>li:last-child{
+    float: right;
+    text-align: center;
+}
+.gbooks{
+
+}
