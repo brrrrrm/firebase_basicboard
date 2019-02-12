@@ -15,9 +15,10 @@
 
   <body>
     <!-- div.wrap>div.panel.clear>div.logo+div.logins^ul.wrs.clear>li.wr+li -->
+    <div class="big_wrap">
     <div class="wrap">
       <div class="panel clear">
-        <div class="logo"><mark>방명록</mark></div>
+        <div class="logo">방명록</div>
         <div class="logins">
           <span id="user_email">aa</span>
           <button type="button" class="w3-button w3-blue" id="login_bt">로그인</button>
@@ -26,7 +27,7 @@
       </div>
       <ul class="wrs clear">
         <li class="wr">
-          <input type="test" id="content" name="content" placeholder="당신의 한 마디를 남겨주세요" class="w3-border w3-input">
+          <input type="text" id="content" name="content" placeholder="당신의 한 마디를 남겨주세요" class="w3-border w3-input">
         </li>
         <li>
           <button type="button" id="save_bt" class="w3-button w3-indigo">저장</button>
@@ -34,7 +35,7 @@
       </ul>
       <div class="gbooks"></div>
     </div>
-    
+  </div>
     <script src="https://www.gstatic.com/firebasejs/5.8.2/firebase.js"></script>
     <script src="js/index.js"></script>
   </body>

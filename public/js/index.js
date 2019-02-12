@@ -17,6 +17,7 @@ var db = firebase.database(); //디비연동설정
 var googleAuth = new firebase.auth.GoogleAuthProvider(); //구글인증
 var ref = null;
 var user = null;
+var key = null;
 
 //Auth
 
@@ -45,22 +46,62 @@ auth.onAuthStateChanged(function(result){
     $("#logout_bt").hide();
     $("#user_email").html('');
   }
+  init(); //auth가 바뀔 때마다 init 해줌
 });
 
 //DB
-
-init();
 function init(){
+  $(".gbooks").empty();
   ref = db.ref("root/gbook");  //DB객체에서 생성된 시점의 인스턴스 
   //해당 주소? 계층에 테이블을 만든다 뭐 이런
-  ref.on("child_added", onAdded); //push 하면 child add
+  ref.off();
+  ref.on("child_added", onAdd); //push 하면 child add
+  ref.on("child_removed", onRmv);
+  ref.on("child_changed", onChg); 
 }
 
-function onAdded(data){
-  log(data);
-};
+function onAdd(data){
+  var k = data.key;
+  var v = data.val();
+  var date = timestampChg(v.wdate);
+  var icon = "";
+  if (user) {
+    if (user.uid == v.uid){
+      icon += '<i onclick="onUpdate(this);" class="fas fa-edit"></i>';
+      icon += '<i onclick="onDelete(this);" class="fas fa-trash"></i>';
+    } 
+  }
+  var html = '<ul id="'+k+'" data-uid="'+v.uid+'" class="gbook">';
+  html += '<li><b>'+v.uname+ '</b>' +' ('+v.email+')  <span>&nbsp;&nbsp;' + date +'</span></li>';
+  html += '<li>'+v.content+'</li>';
+  html += '<li>'+icon+'</li>';
+  html += '</ul>';
+  $(".gbooks").prepend(html);
+}
 
-ref = db.ref("root/gbook"); //위와 변수는 다르지만 다른 인스턴스
+function onRmv(data){
+  var k = data.key;
+  $("#"+k).remove();
+}
+
+function onChg(data){
+  var k = data.key;
+  var v = data.val();
+  $("#"+k).children("li:first-child").children("span").html(timestampChg(v.wdate));
+  $("#"+k).children("li:nth-child(2)").html(v.content);
+  $("#"+k).find(".fa-edit").show();
+}
+
+function zeroAdd(n){
+  if(n<10) return "0" + n;
+  else return n;
+}
+
+function timestampChg(timestamp){
+  var d = new Date(timestamp);
+  var date = d.getFullYear() + "년" + Number(d.getMonth() + 1) + "월 " + d.getDate() + "일 " + d.getHours() + ":" + d.getMinutes();
+  return date;
+}
 
 $("#save_bt").click(function(){
   var $content = $("#content");
@@ -73,9 +114,43 @@ $("#save_bt").click(function(){
       email : user.email,
       uid : user.uid,
       content : $content.val(),
-      wdate : Date.now(),
-      uname : user.displayName
+      uname : user.displayName,
+      wdate : Date.now()
     }).key;
+    $content.val('');
   }
 });
 
+function onUpdate(obj){
+  key = $(obj).parent().parent().attr("id");
+  var $target = $(obj).parent().prev();
+  var v =  $target.html();
+  var html = '<input type="text" name="content" class="w3-input w3-show-inline-block" style="width:calc(100% - 150px); border : 0" value="' + v + '">&nbsp;';
+  html += '<button type="button" class="w3-button w3-orange" style="margin-top:-4px;" onclick="onUpdateDone(this);">수정</button>';
+  html += '<button type="button" class="w3-button w3-grey" style="margin-top:-4px;" onclick="onCancel(this, \''+v+'\');">취소</button>';
+  $target.html(html);
+  $(obj).hide();
+  $target.children("input").focus();
+}
+
+function onCancel(obj, val){
+  var $target = $(obj).parent().html(val);
+  $target.parent().parent().find(".fa-edit").show();
+}
+
+function onUpdateDone(obj){
+  var $input = $(obj).prev();
+  key = $(obj).parent().parent().attr("id");
+  var content = $input.val();
+  ref = db.ref("root/gbook/"+key).update({
+    content : content,
+    wdate : Date.now()
+  });
+}
+
+function onDelete(obj){
+  key = $(obj).parent().parent().attr("id");
+  if(confirm("정말 삭제하시겠습니까?")){
+    db.ref("root/gbook/"+ key).remove();
+  }
+}
